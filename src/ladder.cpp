@@ -1,7 +1,8 @@
 #include "ladder.h"
 
-void error(string word1, string word2, string msg)
+void error(string word1, string word2, string msg){
     cout << "Cannot create word ladder from " << word1 << " to " << word2 << ": " << msg << endl;
+}
 
 bool edit_distance_within(const string& str1, const string& str2, int max_dist) {
     if (abs(static_cast<int>(str1.length()) - static_cast<int>(str2.length())) > max_dist)
