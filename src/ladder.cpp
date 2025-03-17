@@ -44,6 +44,10 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     transform(start.begin(), start.end(), start.begin(), ::tolower);
     transform(end.begin(), end.end(), end.begin(), ::tolower);
 
+    if (start == end) {
+        return {};
+    }
+
     if (word_list.find(start) == word_list.end()) {
         error(begin_word, end_word, "start word not in list");
         return {};
@@ -66,34 +70,42 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
 
         if (last == end) 
             return current_ladder;
+        
         vector<string> neighbors;
 
-        for (int i = 0; i < last.size(); ++i) {
+        for (size_t i = 0; i < last.size(); ++i) {
             string temp = last;
             for (char c = 'a'; c <= 'z'; ++c) {
-                if (c == temp[i]) continue;
+                if (c == last[i]) continue;
                 temp[i] = c;
-                if (word_list.count(temp) && !visited.count(temp)) 
+                if (word_list.count(temp) && !visited.count(temp)) {
                     neighbors.push_back(temp);
+                    visited.insert(temp); 
+                }
             }
         }
 
-        for (int i = 0; i < last.size(); ++i) {
+        for (size_t i = 0; i < last.size(); ++i) {
             string temp = last.substr(0, i) + last.substr(i + 1);
-            if (word_list.count(temp) && !visited.count(temp)) 
+            if (word_list.count(temp) && !visited.count(temp)) {
                 neighbors.push_back(temp);
+                visited.insert(temp);
+            }
         }
 
-        for (int i = 0; i <= last.size(); ++i) {
+        for (size_t i = 0; i <= last.size(); ++i) {
             for (char c = 'a'; c <= 'z'; ++c) {
                 string temp = last.substr(0, i) + c + last.substr(i);
-                if (word_list.count(temp) && !visited.count(temp)) 
+                if (word_list.count(temp) && !visited.count(temp)) {
                     neighbors.push_back(temp);
+                    visited.insert(temp);
+                }
             }
         }
 
+        sort(neighbors.begin(), neighbors.end());
+        
         for (const string& neighbor : neighbors) {
-            visited.insert(neighbor);
             vector<string> new_ladder = current_ladder;
             new_ladder.push_back(neighbor);
             if (neighbor == end) 
