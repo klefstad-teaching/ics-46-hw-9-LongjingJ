@@ -1,13 +1,11 @@
 #include "ladder.h"
 
-void error(string word1, string word2, string msg) {
+void error(string word1, string word2, string msg)
     cout << "Cannot create word ladder from " << word1 << " to " << word2 << ": " << msg << endl;
-}
 
 bool edit_distance_within(const string& str1, const string& str2, int max_dist) {
-    if (abs(static_cast<int>(str1.length()) - static_cast<int>(str2.length())) > max_dist) {
+    if (abs(static_cast<int>(str1.length()) - static_cast<int>(str2.length())) > max_dist)
         return false;
-    }
     
     if (str1.length() == str2.length()) {
         int diff_count = 0;
@@ -28,9 +26,8 @@ bool edit_distance_within(const string& str1, const string& str2, int max_dist) 
     vector<int> prev_row(len2 + 1);
     vector<int> curr_row(len2 + 1);
     
-    for (int j = 0; j <= len2; j++) {
+    for (int j = 0; j <= len2; j++) 
         prev_row[j] = j;
-    }
     
     bool possible = false;
     for (int i = 1; i <= len1; i++) {
@@ -39,20 +36,17 @@ bool edit_distance_within(const string& str1, const string& str2, int max_dist) 
         possible = false;
         
         for (int j = 1; j <= len2; j++) {
-            if (tolower(str1[i-1]) == tolower(str2[j-1])) {
+            if (tolower(str1[i-1]) == tolower(str2[j-1])) 
                 curr_row[j] = prev_row[j-1];
-            } else {
+            else 
                 curr_row[j] = 1 + min(prev_row[j-1], min(prev_row[j], curr_row[j-1]));
-            }
             
-            if (curr_row[j] <= max_dist) {
+            if (curr_row[j] <= max_dist) 
                 possible = true;
-            }
         }
         
-        if (!possible) {
+        if (!possible) 
             return false;
-        }
         
         swap(prev_row, curr_row);
     }
@@ -65,19 +59,29 @@ inline bool is_adjacent(const string& word1, const string& word2) {
 }
 
 vector<string> generate_word_ladder(const string& begin_word, const string& end_word, const set<string>& word_list) {
-    if (begin_word == end_word) {
-        return {begin_word};
-    }
+    if (begin_word == end_word) 
+        return vector<string>();
 
     string lower_begin = begin_word;
     string lower_end = end_word;
     for (char& c : lower_begin) c = tolower(c);
     for (char& c : lower_end) c = tolower(c);
     
-    map<size_t, vector<string>> words_by_length;
+    set<string> lowercase_word_set;
     for (const auto& word : word_list) {
-        words_by_length[word.length()].push_back(word);
+        string lower_word = word;
+        for (char& c : lower_word) c = tolower(c);
+        lowercase_word_set.insert(lower_word);
     }
+    
+    if (lowercase_word_set.find(lower_begin) == lowercase_word_set.end() || 
+        lowercase_word_set.find(lower_end) == lowercase_word_set.end()) {
+        return vector<string>();
+    }
+    
+    map<size_t, vector<string>> words_by_length;
+    for (const auto& word : word_list)
+        words_by_length[word.length()].push_back(word);
     
     queue<vector<string>> ladder_queue;
     ladder_queue.push({begin_word});
@@ -85,7 +89,11 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
     set<string> visited;
     visited.insert(lower_begin);
     
-    while (!ladder_queue.empty()) {
+    int iterations = 0;
+    const int MAX_ITERATIONS = 1000000;
+    
+    while (!ladder_queue.empty() && iterations < MAX_ITERATIONS) {
+        iterations++;
         vector<string> current_ladder = ladder_queue.front();
         ladder_queue.pop();
         
@@ -95,6 +103,7 @@ vector<string> generate_word_ladder(const string& begin_word, const string& end_
 
         for (int len_diff = -1; len_diff <= 1; len_diff++) {
             size_t target_len = last_word.length() + len_diff;
+            if (target_len == 0) continue;
 
             if (words_by_length.find(target_len) == words_by_length.end())
                 continue;
@@ -146,12 +155,13 @@ void print_word_ladder(const vector<string>& ladder) {
         return;
     }
     
+    cout << "Word ladder found: ";
     for (size_t i = 0; i < ladder.size(); i++) {
         cout << ladder[i];
         if (i < ladder.size() - 1) 
-            cout << " -> ";
+            cout << " ";
     }
-    cout << endl;
+    cout << " " << endl;
 }
 
 #define my_assert(e) {cout << #e << ((e) ? " passed": " failed") << endl;}
